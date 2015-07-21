@@ -13,17 +13,14 @@ learn.data <- read.csv(unz(temp, "us_census_full/census_income_learn.csv"))
 test.data <- read.csv(unz(temp, "us_census_full/census_income_test.csv"))
 unlink(temp)
 
-names(learn.data) <- c("age", "classofworker", "industrycode", "occupationcode", "education", "wageperhour", "enrolled.school", 
-                       "marital.status", "major.industry", "major.occupation", "race", "hispanic", "sex", "union", "reason.unemployment", 
-                       "workstat", "capgain", "caploss", "divstocks", "taxfilerstatus", "state.previous", "region.previous", "householdandfamily", 
-                       "household", "instance.weight", "MIGMTR1", "MIGMTR3", "MIGMTR4", "livethishouse", "sunbeltmigr", "nbunder18", "parent.present", "birthfather", 
-                       "birthmother", "birthself", "citizenship", "ownbusiness", "questionnaireveteran", "veteransbenefits", "weeksworked", "year", "income")
+names <- c("age", "classofworker", "industrycode", "occupationcode", "education", "wageperhour", "enrolled.school", 
+           "marital.status", "major.industry", "major.occupation", "race", "hispanic", "sex", "union", "reason.unemployment", 
+           "workstat", "capgain", "caploss", "divstocks", "taxfilerstatus", "state.previous", "region.previous", "householdandfamily", 
+           "household", "instance.weight", "MIGMTR1", "MIGMTR3", "MIGMTR4", "livethishouse", "sunbeltmigr", "nbunder18", "parent.present", "birthfather", 
+           "birthmother", "birthself", "citizenship", "ownbusiness", "questionnaireveteran", "veteransbenefits", "weeksworked", "year", "income")
 
-names(test.data) <- c("age", "classofworker", "industrycode", "occupationcode", "education", "wageperhour", "enrolled.school", 
-                      "marital.status", "major.industry", "major.occupation", "race", "hispanic", "sex", "union", "reason.unemployment", 
-                      "workstat", "capgain", "caploss", "divstocks", "taxfilerstatus", "state.previous", "region.previous", "householdandfamily", 
-                      "household", "instance.weight", "MIGMTR1", "MIGMTR3", "MIGMTR4", "livethishouse", "sunbeltmigr", "nbunder18", "parent.present", "birthfather", 
-                      "birthmother", "birthself", "citizenship", "ownbusiness", "questionnaireveteran", "veteransbenefits", "weeksworked", "year", "income")
+names(learn.data) <- names
+names(test.data) <- names 
 
 ###           Cleaning the data        ###
 
@@ -294,10 +291,14 @@ glm.summary <- summary(glm.fit)$coef
 sorter <- order(glm.summary[,4])
 glm.summary <- glm.summary[sorter,]
 glm.summary
+
+
 ### insights ###
+
 # Here we can see that the most important predictors are sex, age, major occupation, education, weeksworked and number of children under 18 in the household
 # In the estimate, we can see the influence of different variables. 
 # Being a male, old, have a managerial role, working a lot of weeks in the year and having a high degree all play for a higher income
+
 
 # Let's sort it through z value, which gives us the impact 
 sorter <- order(glm.summary[,3])
@@ -309,10 +310,10 @@ glm.summary
 glm.probs <- predict(glm.fit, type="response")
 glm.pred <- rep("Moins",length(learn$income))
 glm.pred[glm.probs >.5]="Plus"
+
 confusion <- table(glm.pred,learn$income)
 confusion
 accuracy <- sum(diag(confusion)) / length(learn$income)
-
 accuracy
 # We have a 94,84% accuracy, which is better than the accuracy in the case we are saying that everybody earns less than 50k (93,8%)
 # We miss some of high earners but get right some of them. The result doesn't satisfy me, so I could have played longer with the data. 
@@ -321,10 +322,11 @@ accuracy
 glm.probs<-predict.glm(glm.fit, newdata = test, type="response")
 glm.pred<-rep("Moins",length(test$income))
 glm.pred[glm.probs >.5]="Plus"
+
 confusion <- table(glm.pred,test.data$income)
 confusion
-accuracy <- sum(diag(confusion)) / length(test$income)
 
+accuracy <- sum(diag(confusion)) / length(test$income)
 accuracy
 # We have an accuracy of 94,88%. Which is a little strange: our model fits better to the test data set than the one our alogorithm learnt from
 
